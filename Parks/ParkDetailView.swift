@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct ParkDetailView: View {
     
@@ -46,6 +47,17 @@ struct ParkDetailView: View {
             }
             .scrollTargetBehavior(.viewAligned)
             .scrollIndicators(.hidden)
+            
+            if let latitude = Double(park.latitude), let longitude = Double(park.longitude) {
+                let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+                Map(initialPosition: .region(.init(center: coordinate, latitudinalMeters: 1_000_000, longitudinalMeters: 1_000_000))) {
+                    Marker(park.name, coordinate: coordinate)
+                        .tint(.purple)
+                }
+                .aspectRatio(1, contentMode: .fill)
+                .cornerRadius(12)
+                .padding()
+            }
         }
     }
 }

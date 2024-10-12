@@ -11,22 +11,30 @@ struct ContentView: View {
     @State private var parks: [Park] = []
 
     var body: some View {
-            VStack {
+        VStack {
+            NavigationStack {
                 ScrollView {
                     LazyVStack {
                         ForEach(parks) { park in
-                            ParkRow(park: park)
+                            NavigationLink(value: park) {
+                                ParkRow(park: park)
+                            }
                         }
                     }
                 }
-            }
-            .padding()
-            .onAppear(perform: {
-                Task {
-                    await fetchParks()
+                .navigationDestination(for: Park.self) { park in
+                    ParkDetailView(park: park)
                 }
-            })
+                .navigationTitle("National Parks")
+            }
         }
+        .padding()
+        .onAppear(perform: {
+            Task {
+                await fetchParks()
+            }
+        })
+    }
 
     private func fetchParks() async {
         // URL for the API endpoint
