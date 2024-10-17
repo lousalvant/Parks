@@ -10,7 +10,24 @@ import SwiftUI
 struct ContentView: View {
     @State private var parks: [Park] = []
     @State private var selectedState = "CA" // Default to California
+    @State private var sortOrder: SortOrder = .ascending // Default sorting order
+
     let states = ["CA", "FL", "NY", "WA", "TX", "NV", "AZ", "CO", "OR", "MT"] // List of states
+
+    // Enum for sorting order
+    enum SortOrder: String, CaseIterable {
+        case ascending = "Ascending"
+        case descending = "Descending"
+    }
+
+    var sortedParks: [Park] {
+        switch sortOrder {
+        case .ascending:
+            return parks.sorted { $0.name < $1.name }
+        case .descending:
+            return parks.sorted { $0.name > $1.name }
+        }
+    }
 
     var body: some View {
         VStack {
@@ -20,14 +37,23 @@ struct ContentView: View {
                     Text(state)
                 }
             }
-            .pickerStyle(MenuPickerStyle()) // Use a menu style picker
+            .pickerStyle(MenuPickerStyle())
+            .padding()
+
+            // Sorting Picker
+            Picker("Sort by", selection: $sortOrder) {
+                ForEach(SortOrder.allCases, id: \.self) { order in
+                    Text(order.rawValue)
+                }
+            }
+            .pickerStyle(SegmentedPickerStyle()) // Segmented control for sorting
             .padding()
 
             // Parks List with Navigation
             NavigationStack {
                 ScrollView {
                     LazyVStack {
-                        ForEach(parks) { park in
+                        ForEach(sortedParks) { park in
                             NavigationLink(value: park) {
                                 ParkRow(park: park)
                             }
@@ -48,7 +74,7 @@ struct ContentView: View {
         })
         .onChange(of: selectedState) {
             Task {
-                await fetchParks(for: selectedState) // Use `selectedState` directly
+                await fetchParks(for: selectedState)
             }
         }
     }
