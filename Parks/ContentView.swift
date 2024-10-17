@@ -13,7 +13,12 @@ struct ContentView: View {
     @State private var sortOrder: SortOrder = .ascending // Default sorting order
     @State private var searchText: String = "" // For search bar
 
-    let states = ["CA", "FL", "NY", "WA", "TX", "NV", "AZ", "CO", "OR", "MT"] // List of states
+    let states = [
+        "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA",
+        "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+        "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT",
+        "VA", "WA", "WV", "WI", "WY", "DC", "GU", "MP", "PR", "VI"
+    ]
 
     // Enum for sorting order
     enum SortOrder: String, CaseIterable {
@@ -80,6 +85,12 @@ struct ContentView: View {
                 }
                 .navigationTitle("National Parks")
             }
+            Spacer() // This pushes everything above upwards, allowing space for your name and Z number at the bottom
+
+                // Name and Z Number at the bottom of the screen
+                Text("Lou Salvant Z23637852")
+                            .font(.headline)
+                            .padding(.bottom)
         }
         .padding()
         .onAppear(perform: {
