@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var parks: [Park] = []
     @State private var selectedState = "CA" // Default to California
     @State private var sortOrder: SortOrder = .ascending // Default sorting order
+    @State private var searchText: String = "" // For search bar
 
     let states = ["CA", "FL", "NY", "WA", "TX", "NV", "AZ", "CO", "OR", "MT"] // List of states
 
@@ -20,12 +21,21 @@ struct ContentView: View {
         case descending = "Descending"
     }
 
-    var sortedParks: [Park] {
+    // Computed property to handle both sorting and searching
+    var filteredParks: [Park] {
+        var result = parks
+
+        // Filter parks by search text
+        if !searchText.isEmpty {
+            result = result.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        }
+
+        // Sort the parks based on sortOrder
         switch sortOrder {
         case .ascending:
-            return parks.sorted { $0.name < $1.name }
+            return result.sorted { $0.name < $1.name }
         case .descending:
-            return parks.sorted { $0.name > $1.name }
+            return result.sorted { $0.name > $1.name }
         }
     }
 
@@ -46,14 +56,19 @@ struct ContentView: View {
                     Text(order.rawValue)
                 }
             }
-            .pickerStyle(SegmentedPickerStyle()) // Segmented control for sorting
+            .pickerStyle(SegmentedPickerStyle())
             .padding()
+
+            // Search Bar
+            TextField("Search for a park", text: $searchText)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding()
 
             // Parks List with Navigation
             NavigationStack {
                 ScrollView {
                     LazyVStack {
-                        ForEach(sortedParks) { park in
+                        ForEach(filteredParks) { park in
                             NavigationLink(value: park) {
                                 ParkRow(park: park)
                             }
