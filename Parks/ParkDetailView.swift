@@ -64,4 +64,4 @@ struct ParkDetailView: View {
 
 #Preview {
     ParkDetailView(park: Park.mocked)
-} 
+}

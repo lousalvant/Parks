@@ -21,7 +21,7 @@ struct Park: Codable, Identifiable, Hashable, Equatable {
     let name: String
     
     func hash(into hasher: inout Hasher) { // <-- Add required hash function
-            hasher.combine(id)
+        hasher.combine(id)
     }
 }
 
@@ -31,7 +31,7 @@ struct ParkImage: Codable, Identifiable, Equatable {
     let url: String
 
     var id: String { // <-- Add id property to conform to Identifiable
-        return url // <-- Use the url string as t he id since it will be unique for a given image
+        return url // <-- Use the url string as the id since it will be unique for a given image
     }
 }
 
@@ -42,4 +42,4 @@ extension Park {
         let park = try! JSONDecoder().decode(Park.self, from: data)
         return park
     }
-} 
+}

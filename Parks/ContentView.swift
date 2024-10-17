@@ -9,9 +9,21 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var parks: [Park] = []
+    @State private var selectedState = "CA" // Default to California
+    let states = ["CA", "FL", "NY", "WA", "TX", "NV", "AZ", "CO", "OR", "MT"] // List of states
 
     var body: some View {
         VStack {
+            // State Picker
+            Picker("Select State", selection: $selectedState) {
+                ForEach(states, id: \.self) { state in
+                    Text(state)
+                }
+            }
+            .pickerStyle(MenuPickerStyle()) // Use a menu style picker
+            .padding()
+
+            // Parks List with Navigation
             NavigationStack {
                 ScrollView {
                     LazyVStack {
@@ -31,34 +43,30 @@ struct ContentView: View {
         .padding()
         .onAppear(perform: {
             Task {
-                await fetchParks()
+                await fetchParks(for: selectedState) // Fetch parks initially for default state
             }
         })
+        .onChange(of: selectedState) {
+            Task {
+                await fetchParks(for: selectedState) // Use `selectedState` directly
+            }
+        }
     }
 
-    private func fetchParks() async {
-        // URL for the API endpoint
-        // 👋👋👋 Make sure to replace {YOUR_API_KEY} in the URL with your actual NPS API Key
-        let url = URL(string: "https://developer.nps.gov/api/v1/parks?stateCode=ca&api_key=bR7zIpJn8cfXHzsMKIEcnxn0Q1RxdGtlU3PK52q4")!
+    // Fetch parks from the API based on the selected state
+    private func fetchParks(for stateCode: String = "CA") async {
+        let apiKey = "bR7zIpJn8cfXHzsMKIEcnxn0Q1RxdGtlU3PK52q4" // Your actual NPS API Key
+        let url = URL(string: "https://developer.nps.gov/api/v1/parks?stateCode=\(stateCode)&api_key=\(apiKey)")!
+        
         do {
-
             // Perform an asynchronous data request
             let (data, _) = try await URLSession.shared.data(from: url)
 
             // Decode json data into ParksResponse type
             let parksResponse = try JSONDecoder().decode(ParksResponse.self, from: data)
 
-            // Get the array of parks from the response
-            let parks = parksResponse.data
-
-            // Print the full name of each park in the array
-            for park in parks {
-                print(park.fullName)
-            }
-
             // Set the parks state property
-            self.parks = parks
-
+            self.parks = parksResponse.data
         } catch {
             print(error.localizedDescription)
         }
